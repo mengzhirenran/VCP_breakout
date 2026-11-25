@@ -1,0 +1,118 @@
+{
+  "experiment_id": "E1_ATR_Compression",
+  "frozen_at": "2026-11-25T12:28:00+08:00",
+  "freeze_note": "本文件参数依据E1任务书固定，运行期间不得修改。任何参数调整都需人类重新批准。",
+  "interpreters": {
+    "compute": {
+      "path": "C:/Users/yjcao/.workbuddy/binaries/python/envs/default/Scripts/python.exe",
+      "version_expect": "3.13.14",
+      "packages": {"pandas": "3.0.5", "numpy": "2.5.1", "openpyxl": "3.1.5"}
+    },
+    "stats_viz": {
+      "path": "D:/Software/VibeTrading/.venv/Scripts/python.exe",
+      "version_expect": "3.13.13",
+      "packages": {"scipy": "1.18.1", "matplotlib": "3.11.2", "pandas": "2.3.3", "numpy": "2.5.5", "duckdb": "2.0.1"}
+    }
+  },
+  "data": {
+    "etf_db": "C:/Users/yjcao/WorkBuddy/automation-claw-2026-05-31-task-1/ETF数据库/etf_data.db",
+    "etf_table": "etf_daily",
+    "index_db": "C:/Users/yjcao/WorkBuddy/feature_timing/bias_model.db",
+    "index_table": "index_daily",
+    "index_for_regime": "000300.SH",
+    "price_basis_note": "本地ETF库无独立复权因子字段，价格口径未知；作为条件性结果处理，并用Wind MCP复权价交叉核验",
+    "use_parquet": false,
+    "modify_source_db": false
+  },
+  "indicators": {
+    "tr_formula": "max(H-L, abs(H-C_prev), abs(L-C_prev))",
+    "atr_method": "Wilder",
+    "atr_initial": "前n期TR均值",
+    "atr_short": 10,
+    "atr_long": 50,
+    "atr_ratio_formula": "ATR10 / ATR50",
+    "min_history_for_signal": 50
+  },
+  "contraction_thresholds": {
+    "nested": {"C1": 0.6, "C2": 0.7, "C3": 0.8, "C4": 0.9},
+    "mutually_exclusive": {
+      "G1": [null, 0.6],
+      "G2": [0.6, 0.7],
+      "G3": [0.7, 0.8],
+      "G4": [0.8, 0.9],
+      "G5": [0.9, null]
+    },
+    "note": "C1-C4为嵌套阈值非互斥；G1-G5为互斥分组；不得事后重划"
+  },
+  "event_definition": {
+    "type": "状态首次进入（first crossing from above to below）",
+    "primary": "昨日ATRRatio>=阈值 且 今日ATRRatio<阈值，记录事件；连续处于阈值下不重复",
+    "cooldown_tests": [0, 20, 60],
+    "cooldown_primary": 0,
+    "allow_new_event_after_recovery": true,
+    "cross_etf_same_day_not_deduped": true
+  },
+  "forward_horizons": [5, 10, 20, 60],
+  "forward_metrics": {
+    "returns": {
+      "primary": "Close[t+h]/Close[t] - 1",
+      "secondary": "Close[t+h]/Open[t+1] - 1",
+      "invalid_secondary_if_no_next_day": "missing, do not fill"
+    },
+    "realized_vol": {
+      "formula": "Std(daily_return[t+1..t+h]) * sqrt(252)",
+      "historical_vol": "Std(daily_return[t-19..t]) * sqrt(252)",
+      "rv_ratio": "RV_forward / RV_historical",
+      "invalid_if_hist_vol_zero_or_missing": true
+    },
+    "mfe_mae": {
+      "reference_price": "Close[t]",
+      "mfe": "max(High[t+1..t+h])/Close[t] - 1",
+      "mae": "min(Low[t+1..t+h])/Close[t] - 1",
+      "note": "事件后路径统计，不等于真实交易盈亏"
+    }
+  },
+  "control_groups": {
+    "non_contraction": "ATRRatio >= 0.9，同资产同期",
+    "same_asset": true,
+    "same_day_cross_section": true,
+    "random_sampling": false
+  },
+  "statistics": {
+    "tests": ["Welch_t_test", "Mann_Whitney_U"],
+    "bootstrap": {
+      "repeats": 2000,
+      "seed": 20261125,
+      "stratify_by": "ETF",
+      "report_ci": 0.95,
+      "time_block_resampling": true
+    },
+    "multiple_testing": {"method": "Benjamini-Hochberg FDR", "alpha_levels": [0.05, 0.10]},
+    "economic_significance_required": true
+  },
+  "stratification": {
+    "by_etf": true,
+    "by_year": true,
+    "market_regime": {
+      "index": "000300.SH",
+      "rule": "Close > MA60 -> UP, Close < MA60 -> DOWN",
+      "missing_if_no_index_data": true,
+      "no_parameter_search": true
+    }
+  },
+  "reproduction": {
+    "manual_check_events": 20,
+    "independent_recompute_required": true,
+    "no_lookahead": true
+  },
+  "scope_guard": {
+    "no_factor_mining": true,
+    "no_parameter_optimization": true,
+    "no_full_strategy_backtest": true,
+    "no_stop_loss_testing": true,
+    "no_live_trading": true,
+    "no_package_install": true,
+    "no_source_db_modification": true,
+    "e2_not_started": true
+  }
+}

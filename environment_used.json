@@ -1,0 +1,31 @@
+{
+  "experiment_id": "E1_ATR_Compression",
+  "recorded_at": "2026-11-25T12:28:00+08:00",
+  "interpreters": [
+    {
+      "role": "compute",
+      "path": "C:/Users/yjcao/.workbuddy/binaries/python/envs/default/Scripts/python.exe",
+      "version": "3.13.14",
+      "packages": {"pandas": "3.0.5", "numpy": "2.5.1", "openpyxl": "3.1.5", "scipy": null, "matplotlib": null},
+      "used_for": ["Phase1数据质量", "Phase2指标计算", "Phase3事件与未来指标", "Phase4描述统计", "CSV/JSON输出"]
+    },
+    {
+      "role": "stats_viz",
+      "path": "D:/Software/VibeTrading/.venv/Scripts/python.exe",
+      "version": "3.13.13",
+      "packages": {"scipy": "1.18.1", "matplotlib": "3.11.2", "pandas": "2.3.3", "numpy": "2.5.5", "duckdb": "2.0.1"},
+      "used_for": ["Phase5统计检验Welch/MWU", "Bootstrap", "FDR校正", "Phase7 PNG图表"]
+    }
+  ],
+  "data_sources": [
+    {"path": "C:/Users/yjcao/WorkBuddy/automation-claw-2026-05-31-task-1/ETF数据库/etf_data.db", "table": "etf_daily", "access": "read_only"},
+    {"path": "C:/Users/yjcao/WorkBuddy/feature_timing/bias_model.db", "table": "index_daily", "access": "read_only"}
+  ],
+  "notes": [
+    "所有脚本均使用解释器绝对路径调用，不依赖PATH中的python",
+    "未安装任何包，未修改Python环境",
+    "未使用Parquet/Jupyter",
+    "临时文件在系统临时目录创建并清理，未修改原始数据库"
+  ],
+  "script_runs": []
+}
