@@ -1,0 +1,13 @@
+{
+  "generated_at": "2026-11-25T12:33:00",
+  "elapsed_seconds": 54.172841,
+  "index_codes": 7,
+  "etf_clean_codes": 73,
+  "index_events_rows": 5308,
+  "etf_events_rows": 1361,
+  "index_control_rows": 51581,
+  "etf_control_rows": 4113,
+  "index_event_unique": 1334,
+  "etf_event_unique": 447,
+  "note": "ETF仅含2026-06-01之后high/low正常区间；历史区间ATR不可靠未纳入"
+}
